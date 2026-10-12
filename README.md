@@ -115,18 +115,6 @@ When ncat first starts, Windows Firewall may ask for access. Allow it on **priva
 | `Why, hello, Client!` | Received from the server, shown exactly as typed |
 | `*** Connected to 127.0.0.1:1234 ***` | Status or error message from the client |
 
-## How it meets the rubric
-
-| Criterion | Implementation |
-|-----------|----------------|
-| **Threading** | `ChatClient` starts two background tasks per connection with `Task.Run`: a **receive loop** (`ReceiveLoopAsync`) and a **send loop** (`SendLoopAsync`). The UI thread never touches the socket. |
-| **Thread safety** | All connection state is guarded by `_stateLock`. Outgoing messages go through a thread-safe `Channel<string>` that only one reader drains, so writes never interleave and stay in order. `CloseConnection` checks and changes state under the lock, so the connection is torn down exactly once even if the user, the server and a failed send all trigger it together. The UI marshals every event with `BeginInvoke`. |
-| **Library** | Connecting, sending, receiving, framing, encoding and disconnecting all live in `prog2200_assign1_library`. It raises custom events with custom `EventArgs`: `MessageReceived`, `MessageSent`, `ConnectionStatusChanged`, `ErrorOccurred`. |
-| **Connection** | `ConnectAsync` (5 s timeout, clear error if no server is listening). `Disconnect` shuts the socket down cleanly and is safe to call repeatedly. A server shutdown is detected by a zero-byte read. Closing the form disposes the client. Either side can close first without errors, and the client can reconnect. |
-| **Client – Incoming** | Received bytes are decoded with a stateful UTF-8 `Decoder` and buffered until a line ending (`\n` or `\r\n`). TCP may split or merge messages, but each one is still shown whole and unchanged as soon as its line arrives. |
-| **Client – Outgoing** | `Send()` only queues the message and returns immediately, so the user can send as fast and as often as they like without the GUI stalling. Each message is sent with a `\r\n` terminator. |
-| **Aesthetics** | Matches the spec layout: black game area, padded group boxes, a read-only conversation box with a vertical scrollbar that auto-scrolls, a status bar, Enter-to-send, and menu items enabled or disabled to match the connection state. |
-| **Source code** | XML doc comments, consistent naming (`_camelCase` fields, `PascalCase` members), and named constants in place of magic numbers. The UI never touches networking code. |
 
 ## Verified behaviour (library tested against a live ncat server)
 
