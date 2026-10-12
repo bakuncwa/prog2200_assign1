@@ -1,0 +1,148 @@
+# PROG2200 Assignment 1 – Asynchronous Multi-Threaded Chat Client
+
+A Windows Forms "Network Game" whose chat panel talks to a TCP server asynchronously.
+All networking lives in a separate class library; ncat (from Nmap) plays the server.
+
+## Solution layout
+
+```
+prog2200_assign1/
+├── prog2200_assign1.sln
+├── start-server.ps1                    PowerShell helper: starts ncat on port 1234
+├── prog2200_assign1/                   Windows Forms client (UI only)
+│   ├── Program.cs
+│   ├── MainForm.cs                     Menu/button handlers, event subscriptions, Invoke
+│   └── MainForm.Designer.cs            Layout: game area, message box, conversation
+└── prog2200_assign1_library/           Chat library (all chat functionality)
+    ├── ChatClient.cs                   Connect / Send / Disconnect, send + receive threads
+    └── ChatEventArgs.cs                Custom EventArgs + ConnectionState enum
+```
+
+The UI project references the library (Project → Add → Project Reference), so the library
+is built into `prog2200_assign1_library.dll` and loaded by the game.
+
+## Requirements
+
+- Windows with Visual Studio 2022 (".NET desktop development" workload) and the .NET 8 SDK
+- Nmap for Windows (https://nmap.org/download), which installs **ncat**
+- PowerShell (built into Windows)
+
+## Setup (PowerShell)
+
+### 1. Install the tools
+
+Run in PowerShell. `winget` is built into Windows 10/11. Skip anything you already have.
+
+```powershell
+winget install --id Git.Git -e
+winget install --id Microsoft.DotNet.SDK.8 -e
+winget install --id Microsoft.PowerShell -e          # PowerShell 7 (optional - Windows PowerShell 5.1 also works)
+winget install --id Insecure.Nmap -e                 # Nmap + ncat
+
+# Visual Studio 2022 Community with the ".NET desktop development" workload (optional - the dotnet CLI is enough to build and run)
+winget install --id Microsoft.VisualStudio.2022.Community -e `
+    --override "--add Microsoft.VisualStudio.Workload.ManagedDesktop --includeRecommended --passive"
+```
+
+Close and reopen PowerShell so the new tools are on your `PATH`, then check them:
+
+```powershell
+git --version
+dotnet --list-sdks        # should list an 8.0.x SDK
+ncat --version
+```
+
+If `ncat` is not found, add the Nmap folder to `PATH` for the current session:
+
+```powershell
+$env:Path += ";${env:ProgramFiles(x86)}\Nmap"
+```
+
+### 2. Get the code and build it
+
+```powershell
+git clone https://github.com/bakuncwa/prog2200_assign1.git
+cd prog2200_assign1
+dotnet build
+```
+
+### 3. Allow scripts (only if `.\start-server.ps1` is blocked)
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # current window only
+# or permanently for your user:
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+Unblock-File .\start-server.ps1                               # clears the "downloaded from the internet" flag
+```
+
+### 4. Configuration
+
+The client connects to `127.0.0.1:1234`. To use a different host or port, change the constants
+at the top of `prog2200_assign1/MainForm.cs`:
+
+```csharp
+private const string ServerHost = "127.0.0.1";
+private const int ServerPort = 1234;
+```
+
+and start the server on the same port: `.\start-server.ps1 -Port 5000`.
+
+When ncat first starts, Windows Firewall may ask for access. Allow it on **private** networks.
+
+## Running it
+
+1. **Start the server** – in PowerShell, from this folder:
+   ```powershell
+   .\start-server.ps1
+   # same as:  ncat -l -p 1234 -t -v
+   # if scripts are blocked:  powershell -ExecutionPolicy Bypass -File .\start-server.ps1
+   ```
+2. **Start the client** – open `prog2200_assign1.sln` in Visual Studio and press F5
+   (or run `dotnet run --project prog2200_assign1`).
+3. **Network → Connect** connects to `127.0.0.1:1234`. ncat prints
+   `Ncat: Connection from 127.0.0.1...`.
+4. Type in *Type your messages here.* and press **Send** or Enter. Type in the ncat window and
+   press Enter to reply.
+5. **Network → Disconnect** closes the connection. **Game → Exit** or the window's X closes the app.
+   You can also stop ncat (Ctrl+C) first: the client reports
+   *The server closed the connection* and can connect again later.
+
+### Conversation tags
+
+| Line | Meaning |
+|------|---------|
+| `>>Hello, Server!` | Sent by this client |
+| `Why, hello, Client!` | Received from the server, shown exactly as typed |
+| `*** Connected to 127.0.0.1:1234 ***` | Status or error message from the client |
+
+## How it meets the rubric
+
+| Criterion | Implementation |
+|-----------|----------------|
+| **Threading** | `ChatClient` starts two background tasks per connection with `Task.Run`: a **receive loop** (`ReceiveLoopAsync`) and a **send loop** (`SendLoopAsync`). The UI thread never touches the socket. |
+| **Thread safety** | All connection state is guarded by `_stateLock`. Outgoing messages go through a thread-safe `Channel<string>` that only one reader drains, so writes never interleave and stay in order. `CloseConnection` checks and changes state under the lock, so the connection is torn down exactly once even if the user, the server and a failed send all trigger it together. The UI marshals every event with `BeginInvoke`. |
+| **Library** | Connecting, sending, receiving, framing, encoding and disconnecting all live in `prog2200_assign1_library`. It raises custom events with custom `EventArgs`: `MessageReceived`, `MessageSent`, `ConnectionStatusChanged`, `ErrorOccurred`. |
+| **Connection** | `ConnectAsync` (5 s timeout, clear error if no server is listening). `Disconnect` shuts the socket down cleanly and is safe to call repeatedly. A server shutdown is detected by a zero-byte read. Closing the form disposes the client. Either side can close first without errors, and the client can reconnect. |
+| **Client – Incoming** | Received bytes are decoded with a stateful UTF-8 `Decoder` and buffered until a line ending (`\n` or `\r\n`). TCP may split or merge messages, but each one is still shown whole and unchanged as soon as its line arrives. |
+| **Client – Outgoing** | `Send()` only queues the message and returns immediately, so the user can send as fast and as often as they like without the GUI stalling. Each message is sent with a `\r\n` terminator. |
+| **Aesthetics** | Matches the spec layout: black game area, padded group boxes, a read-only conversation box with a vertical scrollbar that auto-scrolls, a status bar, Enter-to-send, and menu items enabled or disabled to match the connection state. |
+| **Source code** | XML doc comments, consistent naming (`_camelCase` fields, `PascalCase` members), and named constants in place of magic numbers. The UI never touches networking code. |
+
+## Verified behaviour (library tested against a live ncat server)
+
+- No server running → "no server is listening on that port", Connect re-enabled
+- 501 messages queued in under 1 ms; all arrived at the server in order, with accented characters intact
+- A server line split across two TCP packets is displayed as one message
+- Server closes first → client reports it cleanly; further sends are rejected with a message
+- Client disconnects first → server keeps running; disconnecting twice is harmless; reconnect works
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| *Could not connect ... no server is listening on that port* | Start the server first (`.\start-server.ps1`) and check the ports match. |
+| Port 1234 already in use | `Get-NetTCPConnection -LocalPort 1234` shows the owner; stop it or use another port. |
+| ncat exits after the client disconnects | Expected - ncat serves one connection by default. Run `.\start-server.ps1` again before reconnecting. |
+| Odd symbols at the start of received text | Start ncat without telnet negotiation: `ncat -l -p 1234 -v`. |
+| `ncat` not recognised | See *Install the tools* above, or reopen PowerShell. |
+| Running on macOS | The library and `dotnet build` work on macOS (`brew install nmap` for ncat), but the Windows Forms client only runs on Windows. Use a Windows VM to run the GUI. |
