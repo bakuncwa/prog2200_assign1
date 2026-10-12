@@ -10,15 +10,20 @@ prog2200_assign1/
 ├── prog2200_assign1.sln
 ├── start-server.ps1                    PowerShell helper: starts ncat on port 1234
 ├── prog2200_assign1/                   Windows Forms client (UI only)
+│   ├── App.config
 │   ├── Program.cs
 │   ├── MainForm.cs                     Menu/button handlers, event subscriptions, Invoke
-│   └── MainForm.Designer.cs            Layout: game area, message box, conversation
+│   ├── MainForm.Designer.cs            Layout: game area, message box, conversation
+│   └── Properties/AssemblyInfo.cs
 └── prog2200_assign1_library/           Chat library (all chat functionality)
     ├── ChatClient.cs                   Connect / Send / Disconnect, send + receive threads
-    └── ChatEventArgs.cs                Custom EventArgs + ConnectionState enum
+    ├── ChatEvents.cs                   Event handler delegates, custom EventArgs, ConnectionStatus
+    ├── StateObj.cs                     Per-connection state: socket, buffer, outgoing queue
+    └── Properties/AssemblyInfo.cs
 ```
 
-Both projects target **.NET Framework 4.8** (C# 7.3). The UI project references the library
+Both projects are classic Visual Studio .NET Framework 4.8 projects (the same project format as
+the course demos). The UI project references the library
 (Project → Add → Project Reference), so the library is built into `prog2200_assign1_library.dll`,
 copied next to `prog2200_assign1.exe` and loaded by the game.
 
@@ -26,7 +31,6 @@ copied next to `prog2200_assign1.exe` and loaded by the game.
 
 - Windows 10 or 11 (the .NET Framework 4.8 runtime is built in)
 - Visual Studio 2022 with the ".NET desktop development" workload (includes the .NET Framework 4.8 targeting pack)
-- Optional: the .NET SDK, to build and run from the command line instead of Visual Studio
 - Nmap for Windows (https://nmap.org/download), which installs **ncat**
 - PowerShell (built into Windows)
 
@@ -44,16 +48,12 @@ winget install --id Insecure.Nmap -e                 # Nmap (with the Zenmap GUI
 # Visual Studio 2022 Community with the ".NET desktop development" workload (.NET Framework 4.8 support)
 winget install --id Microsoft.VisualStudio.2022.Community -e `
     --override "--add Microsoft.VisualStudio.Workload.ManagedDesktop --includeRecommended --passive"
-
-# Optional - only needed for the `dotnet build` / `dotnet run` commands below
-winget install --id Microsoft.DotNet.SDK.8 -e
 ```
 
 Close and reopen PowerShell so the new tools are on your `PATH`, then check them:
 
 ```powershell
 git --version
-dotnet --list-sdks        # only if you installed the optional .NET SDK
 ncat --version
 ```
 
@@ -69,11 +69,12 @@ $env:Path += ";${env:ProgramFiles(x86)}\Nmap"
 git clone https://github.com/bakuncwa/prog2200_assign1.git
 cd prog2200_assign1
 start prog2200_assign1.sln      # opens Visual Studio - then Build -> Build Solution (Ctrl+Shift+B)
-# or, with the .NET SDK installed:
-dotnet build
+
+# or build from PowerShell with Visual Studio's MSBuild:
+& "$env:ProgramFiles\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" prog2200_assign1.sln
 ```
 
-The game is built to `prog2200_assign1\bin\Debug\net48\prog2200_assign1.exe`, with
+The game is built to `prog2200_assign1\bin\Debug\prog2200_assign1.exe`, with
 `prog2200_assign1_library.dll` beside it.
 
 ### 3. Allow scripts (only if `.\start-server.ps1` is blocked)
@@ -108,7 +109,7 @@ When ncat first starts, Windows Firewall may ask for access. Allow it on **priva
    # if scripts are blocked:  powershell -ExecutionPolicy Bypass -File .\start-server.ps1
    ```
 2. **Start the client** – open `prog2200_assign1.sln` in Visual Studio and press F5
-   (or run `dotnet run --project prog2200_assign1`).
+   (or, once built, run `.\prog2200_assign1\bin\Debug\prog2200_assign1.exe`).
 3. **Network → Connect** connects to `127.0.0.1:1234`. ncat prints
    `Ncat: Connection from 127.0.0.1...`.
 4. Type in *Type your messages here.* and press **Send** or Enter. Type in the ncat window and
@@ -119,14 +120,30 @@ When ncat first starts, Windows Firewall may ask for access. Allow it on **priva
 
 ### Conversation tags
 
-| Line | Meaning |
-|------|---------|
-| `>> Hello, Server!` | Sent by this client |
-| `<< Why, hello, Client!` | Received from the server - everything after `<< ` is exactly what the server typed |
-| `*** Connected to 127.0.0.1:1234 ***` | Status or error message from the client |
+Every line starts with the time, and is coloured by where it came from.
+
+| Line | Colour | Meaning |
+|------|--------|---------|
+| `[14:02:11] >> Hello, Server!` | Blue | Sent by this client |
+| `[14:02:15] << Why, hello, Client!` | Green | Received from the server - everything after `<< ` is exactly what the server typed |
+| `[14:02:09] *** Connected to 127.0.0.1:1234` | Grey | Connection status |
+| `[14:03:40] *** Could not connect ...` | Red | Error |
 
 
-## Verified behaviour (library tested against a live TCP server)
+## How it works
+
+- **Connecting** is asynchronous: `ConnectAsync` (`async`/`await`) looks up the IP address and
+  connects the socket with a 5-second timeout, so the window never freezes.
+- **Receiving** runs on its own thread. It reads bytes into the `StateObj` buffer, decodes them
+  back into text and raises `MessageReceived` once per complete line.
+- **Sending** runs on its own thread. `Send()` adds the message to a thread-safe
+  `BlockingCollection` and returns at once; the send thread writes queued messages in order and
+  raises `MessageSent`.
+- **Thread safety**: connection state is only changed inside `lock`, so the connection is closed
+  exactly once even if the user, the server and a failed send all trigger it at the same moment.
+  The form uses `InvokeRequired` / `BeginInvoke` so controls are only touched on the UI thread.
+
+## Verified behaviour (library tested against a live TCP server and ncat)
 
 - No server running → "no server is listening on that port", Connect re-enabled
 - 500 messages queued in under 1 ms; all arrived at the server in order, with accented characters intact
@@ -145,4 +162,4 @@ When ncat first starts, Windows Firewall may ask for access. Allow it on **priva
 | ncat exits after the client disconnects | Expected - ncat serves one connection by default. Run `.\start-server.ps1` again before reconnecting. |
 | Odd symbols at the start of received text | Start ncat without telnet negotiation: `ncat -l -p 1234 -v`. |
 | `ncat` not recognised | See *Install the tools* above, or reopen PowerShell. |
-| Running on macOS | The library and `dotnet build` work on macOS (`brew install nmap` for ncat), but the Windows Forms client only runs on Windows. Use a Windows VM to run the GUI. |
+| Running on macOS | .NET Framework and Windows Forms only run on Windows. Use a Windows PC or VM. |

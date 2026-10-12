@@ -1,17 +1,14 @@
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace prog2200_assign1
 {
     partial class MainForm
     {
         /// <summary>
-        ///  Required designer variable.
+        /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        ///  Clean up any resources being used.
+        /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
@@ -26,263 +23,269 @@ namespace prog2200_assign1
         #region Windows Form Designer generated code
 
         /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            mainMenuStrip = new MenuStrip();
-            gameMenuItem = new ToolStripMenuItem();
-            exitMenuItem = new ToolStripMenuItem();
-            networkMenuItem = new ToolStripMenuItem();
-            connectMenuItem = new ToolStripMenuItem();
-            disconnectMenuItem = new ToolStripMenuItem();
-            gamePanel = new Panel();
-            gameLabel = new Label();
-            chatPanel = new Panel();
-            conversationGroupBox = new GroupBox();
-            conversationTextBox = new TextBox();
-            spacerPanel = new Panel();
-            messageGroupBox = new GroupBox();
-            messageLayoutPanel = new TableLayoutPanel();
-            messageTextBox = new TextBox();
-            sendButton = new Button();
-            statusStrip = new StatusStrip();
-            connectionStatusLabel = new ToolStripStatusLabel();
-            mainMenuStrip.SuspendLayout();
-            gamePanel.SuspendLayout();
-            chatPanel.SuspendLayout();
-            conversationGroupBox.SuspendLayout();
-            messageGroupBox.SuspendLayout();
-            messageLayoutPanel.SuspendLayout();
-            statusStrip.SuspendLayout();
-            SuspendLayout();
+            this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
+            this.gameMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.networkMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disconnectMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gamePanel = new System.Windows.Forms.Panel();
+            this.gameLabel = new System.Windows.Forms.Label();
+            this.chatPanel = new System.Windows.Forms.Panel();
+            this.conversationGroupBox = new System.Windows.Forms.GroupBox();
+            this.conversationBox = new System.Windows.Forms.RichTextBox();
+            this.spacerPanel = new System.Windows.Forms.Panel();
+            this.messageGroupBox = new System.Windows.Forms.GroupBox();
+            this.messageLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.messageTextBox = new System.Windows.Forms.TextBox();
+            this.sendButton = new System.Windows.Forms.Button();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.connectionStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.mainMenuStrip.SuspendLayout();
+            this.gamePanel.SuspendLayout();
+            this.chatPanel.SuspendLayout();
+            this.conversationGroupBox.SuspendLayout();
+            this.messageGroupBox.SuspendLayout();
+            this.messageLayoutPanel.SuspendLayout();
+            this.statusStrip.SuspendLayout();
+            this.SuspendLayout();
             //
             // mainMenuStrip
             //
-            mainMenuStrip.Items.AddRange(new ToolStripItem[] { gameMenuItem, networkMenuItem });
-            mainMenuStrip.Location = new Point(0, 0);
-            mainMenuStrip.Name = "mainMenuStrip";
-            mainMenuStrip.Size = new Size(624, 24);
-            mainMenuStrip.TabIndex = 0;
+            this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.gameMenuItem,
+            this.networkMenuItem});
+            this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.mainMenuStrip.Name = "mainMenuStrip";
+            this.mainMenuStrip.Size = new System.Drawing.Size(624, 24);
+            this.mainMenuStrip.TabIndex = 0;
             //
             // gameMenuItem
             //
-            gameMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exitMenuItem });
-            gameMenuItem.Name = "gameMenuItem";
-            gameMenuItem.Size = new Size(50, 20);
-            gameMenuItem.Text = "&Game";
+            this.gameMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exitMenuItem});
+            this.gameMenuItem.Name = "gameMenuItem";
+            this.gameMenuItem.Size = new System.Drawing.Size(50, 20);
+            this.gameMenuItem.Text = "&Game";
             //
             // exitMenuItem
             //
-            exitMenuItem.Name = "exitMenuItem";
-            exitMenuItem.Size = new Size(180, 22);
-            exitMenuItem.Text = "E&xit";
-            exitMenuItem.Click += exitMenuItem_Click;
+            this.exitMenuItem.Name = "exitMenuItem";
+            this.exitMenuItem.Size = new System.Drawing.Size(93, 22);
+            this.exitMenuItem.Text = "E&xit";
+            this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             //
             // networkMenuItem
             //
-            networkMenuItem.DropDownItems.AddRange(new ToolStripItem[] { connectMenuItem, disconnectMenuItem });
-            networkMenuItem.Name = "networkMenuItem";
-            networkMenuItem.Size = new Size(64, 20);
-            networkMenuItem.Text = "&Network";
+            this.networkMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectMenuItem,
+            this.disconnectMenuItem});
+            this.networkMenuItem.Name = "networkMenuItem";
+            this.networkMenuItem.Size = new System.Drawing.Size(64, 20);
+            this.networkMenuItem.Text = "&Network";
             //
             // connectMenuItem
             //
-            connectMenuItem.Name = "connectMenuItem";
-            connectMenuItem.Size = new Size(180, 22);
-            connectMenuItem.Text = "&Connect";
-            connectMenuItem.Click += connectMenuItem_Click;
+            this.connectMenuItem.Name = "connectMenuItem";
+            this.connectMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.connectMenuItem.Text = "&Connect";
+            this.connectMenuItem.Click += new System.EventHandler(this.connectMenuItem_Click);
             //
             // disconnectMenuItem
             //
-            disconnectMenuItem.Enabled = false;
-            disconnectMenuItem.Name = "disconnectMenuItem";
-            disconnectMenuItem.Size = new Size(180, 22);
-            disconnectMenuItem.Text = "&Disconnect";
-            disconnectMenuItem.Click += disconnectMenuItem_Click;
+            this.disconnectMenuItem.Name = "disconnectMenuItem";
+            this.disconnectMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.disconnectMenuItem.Text = "&Disconnect";
+            this.disconnectMenuItem.Click += new System.EventHandler(this.disconnectMenuItem_Click);
             //
             // gamePanel
             //
-            gamePanel.BackColor = Color.Black;
-            gamePanel.Controls.Add(gameLabel);
-            gamePanel.Dock = DockStyle.Top;
-            gamePanel.Location = new Point(0, 24);
-            gamePanel.Name = "gamePanel";
-            gamePanel.Size = new Size(624, 300);
-            gamePanel.TabIndex = 1;
+            this.gamePanel.BackColor = System.Drawing.Color.Black;
+            this.gamePanel.Controls.Add(this.gameLabel);
+            this.gamePanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gamePanel.Location = new System.Drawing.Point(0, 24);
+            this.gamePanel.Name = "gamePanel";
+            this.gamePanel.Size = new System.Drawing.Size(624, 300);
+            this.gamePanel.TabIndex = 1;
             //
             // gameLabel
             //
-            gameLabel.Dock = DockStyle.Fill;
-            gameLabel.Font = new Font("Arial", 20F, FontStyle.Regular, GraphicsUnit.Point);
-            gameLabel.ForeColor = Color.White;
-            gameLabel.Location = new Point(0, 0);
-            gameLabel.Name = "gameLabel";
-            gameLabel.Size = new Size(624, 300);
-            gameLabel.TabIndex = 0;
-            gameLabel.Text = "Game Goes Here";
-            gameLabel.TextAlign = ContentAlignment.MiddleCenter;
+            this.gameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gameLabel.Font = new System.Drawing.Font("Arial", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gameLabel.ForeColor = System.Drawing.Color.White;
+            this.gameLabel.Location = new System.Drawing.Point(0, 0);
+            this.gameLabel.Name = "gameLabel";
+            this.gameLabel.Size = new System.Drawing.Size(624, 300);
+            this.gameLabel.TabIndex = 0;
+            this.gameLabel.Text = "Game Goes Here";
+            this.gameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
             // chatPanel
             //
-            chatPanel.Controls.Add(conversationGroupBox);
-            chatPanel.Controls.Add(spacerPanel);
-            chatPanel.Controls.Add(messageGroupBox);
-            chatPanel.Dock = DockStyle.Fill;
-            chatPanel.Location = new Point(0, 324);
-            chatPanel.Name = "chatPanel";
-            chatPanel.Padding = new Padding(12, 10, 12, 10);
-            chatPanel.Size = new Size(624, 315);
-            chatPanel.TabIndex = 2;
+            this.chatPanel.Controls.Add(this.conversationGroupBox);
+            this.chatPanel.Controls.Add(this.spacerPanel);
+            this.chatPanel.Controls.Add(this.messageGroupBox);
+            this.chatPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chatPanel.Location = new System.Drawing.Point(0, 324);
+            this.chatPanel.Name = "chatPanel";
+            this.chatPanel.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
+            this.chatPanel.Size = new System.Drawing.Size(624, 315);
+            this.chatPanel.TabIndex = 2;
             //
             // conversationGroupBox
             //
-            conversationGroupBox.Controls.Add(conversationTextBox);
-            conversationGroupBox.Dock = DockStyle.Fill;
-            conversationGroupBox.Location = new Point(12, 82);
-            conversationGroupBox.Name = "conversationGroupBox";
-            conversationGroupBox.Padding = new Padding(10, 6, 10, 10);
-            conversationGroupBox.Size = new Size(600, 223);
-            conversationGroupBox.TabIndex = 1;
-            conversationGroupBox.TabStop = false;
-            conversationGroupBox.Text = "Conversation";
+            this.conversationGroupBox.Controls.Add(this.conversationBox);
+            this.conversationGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.conversationGroupBox.Location = new System.Drawing.Point(12, 82);
+            this.conversationGroupBox.Name = "conversationGroupBox";
+            this.conversationGroupBox.Padding = new System.Windows.Forms.Padding(10, 6, 10, 10);
+            this.conversationGroupBox.Size = new System.Drawing.Size(600, 223);
+            this.conversationGroupBox.TabIndex = 1;
+            this.conversationGroupBox.TabStop = false;
+            this.conversationGroupBox.Text = "Conversation";
             //
-            // conversationTextBox
+            // conversationBox
             //
-            conversationTextBox.BackColor = SystemColors.Window;
-            conversationTextBox.Dock = DockStyle.Fill;
-            conversationTextBox.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point);
-            conversationTextBox.Location = new Point(10, 22);
-            conversationTextBox.Multiline = true;
-            conversationTextBox.Name = "conversationTextBox";
-            conversationTextBox.ReadOnly = true;
-            conversationTextBox.ScrollBars = ScrollBars.Vertical;
-            conversationTextBox.Size = new Size(580, 191);
-            conversationTextBox.TabIndex = 0;
-            conversationTextBox.TabStop = false;
+            this.conversationBox.BackColor = System.Drawing.SystemColors.Window;
+            this.conversationBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.conversationBox.DetectUrls = false;
+            this.conversationBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.conversationBox.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.conversationBox.Location = new System.Drawing.Point(10, 22);
+            this.conversationBox.Name = "conversationBox";
+            this.conversationBox.ReadOnly = true;
+            this.conversationBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.conversationBox.Size = new System.Drawing.Size(580, 191);
+            this.conversationBox.TabIndex = 0;
+            this.conversationBox.TabStop = false;
+            this.conversationBox.Text = "";
             //
             // spacerPanel
             //
-            spacerPanel.Dock = DockStyle.Top;
-            spacerPanel.Location = new Point(12, 72);
-            spacerPanel.Name = "spacerPanel";
-            spacerPanel.Size = new Size(600, 10);
-            spacerPanel.TabIndex = 2;
+            this.spacerPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.spacerPanel.Location = new System.Drawing.Point(12, 72);
+            this.spacerPanel.Name = "spacerPanel";
+            this.spacerPanel.Size = new System.Drawing.Size(600, 10);
+            this.spacerPanel.TabIndex = 2;
             //
             // messageGroupBox
             //
-            messageGroupBox.Controls.Add(messageLayoutPanel);
-            messageGroupBox.Dock = DockStyle.Top;
-            messageGroupBox.Location = new Point(12, 10);
-            messageGroupBox.Name = "messageGroupBox";
-            messageGroupBox.Padding = new Padding(10, 6, 10, 8);
-            messageGroupBox.Size = new Size(600, 62);
-            messageGroupBox.TabIndex = 0;
-            messageGroupBox.TabStop = false;
-            messageGroupBox.Text = "Type your messages here.";
+            this.messageGroupBox.Controls.Add(this.messageLayoutPanel);
+            this.messageGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.messageGroupBox.Location = new System.Drawing.Point(12, 10);
+            this.messageGroupBox.Name = "messageGroupBox";
+            this.messageGroupBox.Padding = new System.Windows.Forms.Padding(10, 6, 10, 8);
+            this.messageGroupBox.Size = new System.Drawing.Size(600, 62);
+            this.messageGroupBox.TabIndex = 0;
+            this.messageGroupBox.TabStop = false;
+            this.messageGroupBox.Text = "Type your messages here.";
             //
             // messageLayoutPanel
             //
-            messageLayoutPanel.ColumnCount = 2;
-            messageLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            messageLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            messageLayoutPanel.Controls.Add(messageTextBox, 0, 0);
-            messageLayoutPanel.Controls.Add(sendButton, 1, 0);
-            messageLayoutPanel.Dock = DockStyle.Fill;
-            messageLayoutPanel.Location = new Point(10, 22);
-            messageLayoutPanel.Name = "messageLayoutPanel";
-            messageLayoutPanel.RowCount = 1;
-            messageLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            messageLayoutPanel.Size = new Size(580, 32);
-            messageLayoutPanel.TabIndex = 0;
+            this.messageLayoutPanel.ColumnCount = 2;
+            this.messageLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.messageLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.messageLayoutPanel.Controls.Add(this.messageTextBox, 0, 0);
+            this.messageLayoutPanel.Controls.Add(this.sendButton, 1, 0);
+            this.messageLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.messageLayoutPanel.Location = new System.Drawing.Point(10, 22);
+            this.messageLayoutPanel.Name = "messageLayoutPanel";
+            this.messageLayoutPanel.RowCount = 1;
+            this.messageLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.messageLayoutPanel.Size = new System.Drawing.Size(580, 32);
+            this.messageLayoutPanel.TabIndex = 0;
             //
             // messageTextBox
             //
-            messageTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            messageTextBox.Location = new Point(3, 4);
-            messageTextBox.MaxLength = 1000;
-            messageTextBox.Name = "messageTextBox";
-            messageTextBox.Size = new Size(478, 23);
-            messageTextBox.TabIndex = 0;
+            this.messageTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.messageTextBox.Location = new System.Drawing.Point(3, 4);
+            this.messageTextBox.MaxLength = 1000;
+            this.messageTextBox.Name = "messageTextBox";
+            this.messageTextBox.Size = new System.Drawing.Size(478, 23);
+            this.messageTextBox.TabIndex = 0;
             //
             // sendButton
             //
-            sendButton.Anchor = AnchorStyles.Right;
-            sendButton.Location = new Point(487, 3);
-            sendButton.Margin = new Padding(8, 3, 0, 3);
-            sendButton.Name = "sendButton";
-            sendButton.Size = new Size(90, 26);
-            sendButton.TabIndex = 1;
-            sendButton.Text = "&Send";
-            sendButton.UseVisualStyleBackColor = true;
-            sendButton.Click += sendButton_Click;
+            this.sendButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.sendButton.Location = new System.Drawing.Point(487, 3);
+            this.sendButton.Margin = new System.Windows.Forms.Padding(8, 3, 0, 3);
+            this.sendButton.Name = "sendButton";
+            this.sendButton.Size = new System.Drawing.Size(90, 26);
+            this.sendButton.TabIndex = 1;
+            this.sendButton.Text = "&Send";
+            this.sendButton.UseVisualStyleBackColor = true;
+            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
             //
             // statusStrip
             //
-            statusStrip.Items.AddRange(new ToolStripItem[] { connectionStatusLabel });
-            statusStrip.Location = new Point(0, 639);
-            statusStrip.Name = "statusStrip";
-            statusStrip.Size = new Size(624, 22);
-            statusStrip.TabIndex = 3;
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectionStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(0, 639);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(624, 22);
+            this.statusStrip.TabIndex = 3;
             //
             // connectionStatusLabel
             //
-            connectionStatusLabel.Name = "connectionStatusLabel";
-            connectionStatusLabel.Size = new Size(85, 17);
-            connectionStatusLabel.Text = "Not connected";
+            this.connectionStatusLabel.Name = "connectionStatusLabel";
+            this.connectionStatusLabel.Size = new System.Drawing.Size(85, 17);
+            this.connectionStatusLabel.Text = "Not connected";
             //
             // MainForm
             //
-            AcceptButton = sendButton;
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            ClientSize = new Size(624, 661);
-            Controls.Add(chatPanel);
-            Controls.Add(gamePanel);
-            Controls.Add(statusStrip);
-            Controls.Add(mainMenuStrip);
-            MainMenuStrip = mainMenuStrip;
-            MinimumSize = new Size(480, 560);
-            Name = "MainForm";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "Network Game";
-            FormClosing += MainForm_FormClosing;
-            mainMenuStrip.ResumeLayout(false);
-            mainMenuStrip.PerformLayout();
-            gamePanel.ResumeLayout(false);
-            chatPanel.ResumeLayout(false);
-            conversationGroupBox.ResumeLayout(false);
-            conversationGroupBox.PerformLayout();
-            messageGroupBox.ResumeLayout(false);
-            messageLayoutPanel.ResumeLayout(false);
-            messageLayoutPanel.PerformLayout();
-            statusStrip.ResumeLayout(false);
-            statusStrip.PerformLayout();
-            ResumeLayout(false);
-            PerformLayout();
+            this.AcceptButton = this.sendButton;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(624, 661);
+            this.Controls.Add(this.chatPanel);
+            this.Controls.Add(this.gamePanel);
+            this.Controls.Add(this.statusStrip);
+            this.Controls.Add(this.mainMenuStrip);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MainMenuStrip = this.mainMenuStrip;
+            this.MinimumSize = new System.Drawing.Size(480, 560);
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Network Game";
+            this.mainMenuStrip.ResumeLayout(false);
+            this.mainMenuStrip.PerformLayout();
+            this.gamePanel.ResumeLayout(false);
+            this.chatPanel.ResumeLayout(false);
+            this.conversationGroupBox.ResumeLayout(false);
+            this.messageGroupBox.ResumeLayout(false);
+            this.messageLayoutPanel.ResumeLayout(false);
+            this.messageLayoutPanel.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
 
-        private MenuStrip mainMenuStrip;
-        private ToolStripMenuItem gameMenuItem;
-        private ToolStripMenuItem exitMenuItem;
-        private ToolStripMenuItem networkMenuItem;
-        private ToolStripMenuItem connectMenuItem;
-        private ToolStripMenuItem disconnectMenuItem;
-        private Panel gamePanel;
-        private Label gameLabel;
-        private Panel chatPanel;
-        private GroupBox conversationGroupBox;
-        private TextBox conversationTextBox;
-        private Panel spacerPanel;
-        private GroupBox messageGroupBox;
-        private TableLayoutPanel messageLayoutPanel;
-        private TextBox messageTextBox;
-        private Button sendButton;
-        private StatusStrip statusStrip;
-        private ToolStripStatusLabel connectionStatusLabel;
+        private System.Windows.Forms.MenuStrip mainMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem gameMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem networkMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disconnectMenuItem;
+        private System.Windows.Forms.Panel gamePanel;
+        private System.Windows.Forms.Label gameLabel;
+        private System.Windows.Forms.Panel chatPanel;
+        private System.Windows.Forms.GroupBox conversationGroupBox;
+        private System.Windows.Forms.RichTextBox conversationBox;
+        private System.Windows.Forms.Panel spacerPanel;
+        private System.Windows.Forms.GroupBox messageGroupBox;
+        private System.Windows.Forms.TableLayoutPanel messageLayoutPanel;
+        private System.Windows.Forms.TextBox messageTextBox;
+        private System.Windows.Forms.Button sendButton;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel connectionStatusLabel;
     }
 }
