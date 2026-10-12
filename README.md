@@ -18,12 +18,15 @@ prog2200_assign1/
     └── ChatEventArgs.cs                Custom EventArgs + ConnectionState enum
 ```
 
-The UI project references the library (Project → Add → Project Reference), so the library
-is built into `prog2200_assign1_library.dll` and loaded by the game.
+Both projects target **.NET Framework 4.8** (C# 7.3). The UI project references the library
+(Project → Add → Project Reference), so the library is built into `prog2200_assign1_library.dll`,
+copied next to `prog2200_assign1.exe` and loaded by the game.
 
 ## Requirements
 
-- Windows with Visual Studio 2022 (".NET desktop development" workload) and the .NET 8 SDK
+- Windows 10 or 11 (the .NET Framework 4.8 runtime is built in)
+- Visual Studio 2022 with the ".NET desktop development" workload (includes the .NET Framework 4.8 targeting pack)
+- Optional: the .NET SDK, to build and run from the command line instead of Visual Studio
 - Nmap for Windows (https://nmap.org/download), which installs **ncat**
 - PowerShell (built into Windows)
 
@@ -35,20 +38,22 @@ Run in PowerShell. `winget` is built into Windows 10/11. Skip anything you alrea
 
 ```powershell
 winget install --id Git.Git -e
-winget install --id Microsoft.DotNet.SDK.8 -e
 winget install --id Microsoft.PowerShell -e          # PowerShell 7 (optional - Windows PowerShell 5.1 also works)
-winget install --id Insecure.Nmap -e                 # Nmap + ncat
+winget install --id Insecure.Nmap -e                 # Nmap (with the Zenmap GUI) + ncat
 
-# Visual Studio 2022 Community with the ".NET desktop development" workload (optional - the dotnet CLI is enough to build and run)
+# Visual Studio 2022 Community with the ".NET desktop development" workload (.NET Framework 4.8 support)
 winget install --id Microsoft.VisualStudio.2022.Community -e `
     --override "--add Microsoft.VisualStudio.Workload.ManagedDesktop --includeRecommended --passive"
+
+# Optional - only needed for the `dotnet build` / `dotnet run` commands below
+winget install --id Microsoft.DotNet.SDK.8 -e
 ```
 
 Close and reopen PowerShell so the new tools are on your `PATH`, then check them:
 
 ```powershell
 git --version
-dotnet --list-sdks        # should list an 8.0.x SDK
+dotnet --list-sdks        # only if you installed the optional .NET SDK
 ncat --version
 ```
 
@@ -63,8 +68,13 @@ $env:Path += ";${env:ProgramFiles(x86)}\Nmap"
 ```powershell
 git clone https://github.com/bakuncwa/prog2200_assign1.git
 cd prog2200_assign1
+start prog2200_assign1.sln      # opens Visual Studio - then Build -> Build Solution (Ctrl+Shift+B)
+# or, with the .NET SDK installed:
 dotnet build
 ```
+
+The game is built to `prog2200_assign1\bin\Debug\net48\prog2200_assign1.exe`, with
+`prog2200_assign1_library.dll` beside it.
 
 ### 3. Allow scripts (only if `.\start-server.ps1` is blocked)
 
@@ -111,18 +121,20 @@ When ncat first starts, Windows Firewall may ask for access. Allow it on **priva
 
 | Line | Meaning |
 |------|---------|
-| `>>Hello, Server!` | Sent by this client |
-| `Why, hello, Client!` | Received from the server, shown exactly as typed |
+| `>> Hello, Server!` | Sent by this client |
+| `<< Why, hello, Client!` | Received from the server - everything after `<< ` is exactly what the server typed |
 | `*** Connected to 127.0.0.1:1234 ***` | Status or error message from the client |
 
 
-## Verified behaviour (library tested against a live ncat server)
+## Verified behaviour (library tested against a live TCP server)
 
 - No server running → "no server is listening on that port", Connect re-enabled
-- 501 messages queued in under 1 ms; all arrived at the server in order, with accented characters intact
-- A server line split across two TCP packets is displayed as one message
+- 500 messages queued in under 1 ms; all arrived at the server in order, with accented characters intact
+- A server line split across two TCP packets is displayed as one message, including a character split mid-byte
+- A 3,000-character line (longer than the 1,024-byte buffer) arrives as one message
 - Server closes first → client reports it cleanly; further sends are rejected with a message
-- Client disconnects first → server keeps running; disconnecting twice is harmless; reconnect works
+- Client disconnects first → server sees a clean close; disconnecting twice is harmless; reconnect works
+- Server killed while the client is sending thousands of messages → exactly one disconnect, no crash
 
 ## Troubleshooting
 

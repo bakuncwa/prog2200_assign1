@@ -1,17 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>prog2200_assign1</RootNamespace>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\prog2200_assign1_library\prog2200_assign1_library.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Allows the Windows-only project to be built from macOS/Linux too (it still runs on Windows only). -->
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
 
 </Project>
