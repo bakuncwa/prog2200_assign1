@@ -46,6 +46,12 @@ namespace prog2200_assign1
         /// </summary>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+#if DEBUG
+            // TEMPORARY DIAGNOSTIC: shows what closed the window. Remove once the early-exit problem is found.
+            MessageBox.Show("Closing because: " + e.CloseReason + Environment.NewLine + Environment.NewLine
+                + Environment.StackTrace, "DEBUG - window closing");
+#endif
+
             _chatClient.MessageReceived -= ChatClient_MessageReceived;
             _chatClient.MessageSent -= ChatClient_MessageSent;
             _chatClient.ConnectionChanged -= ChatClient_ConnectionChanged;
