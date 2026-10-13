@@ -50,12 +50,15 @@ namespace prog2200_assign1
             this.messageLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.messageTextBox = new System.Windows.Forms.TextBox();
             this.sendButton = new System.Windows.Forms.Button();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.connectionStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenuStrip.SuspendLayout();
             this.gamePanel.SuspendLayout();
             this.chatPanel.SuspendLayout();
             this.conversationGroupBox.SuspendLayout();
             this.messageGroupBox.SuspendLayout();
             this.messageLayoutPanel.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             //
             // mainMenuStrip
@@ -221,12 +224,28 @@ namespace prog2200_assign1
             this.sendButton.UseVisualStyleBackColor = true;
             this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
             //
+            // statusStrip
+            //
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectionStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(0, 538);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(640, 22);
+            this.statusStrip.TabIndex = 3;
+            //
+            // connectionStatusLabel
+            //
+            this.connectionStatusLabel.Name = "connectionStatusLabel";
+            this.connectionStatusLabel.Size = new System.Drawing.Size(85, 17);
+            this.connectionStatusLabel.Text = "Not connected";
+            //
             // MainForm
             //
             this.AcceptButton = this.sendButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 560);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.chatPanel);
             this.Controls.Add(this.gamePanel);
             this.Controls.Add(this.mainMenuStrip);
@@ -244,6 +263,8 @@ namespace prog2200_assign1
             this.messageGroupBox.ResumeLayout(false);
             this.messageLayoutPanel.ResumeLayout(false);
             this.messageLayoutPanel.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -267,5 +288,7 @@ namespace prog2200_assign1
         private System.Windows.Forms.TableLayoutPanel messageLayoutPanel;
         private System.Windows.Forms.TextBox messageTextBox;
         private System.Windows.Forms.Button sendButton;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel connectionStatusLabel;
     }
 }

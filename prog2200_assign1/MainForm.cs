@@ -107,9 +107,10 @@ namespace prog2200_assign1
             }
 
             // Send() only queues the message for the send thread, so this returns straight away.
-            // The message stays in the box, so it can be edited or sent again.
             _chatClient.Send(messageTextBox.Text);
 
+            // Clear the textbox after sending
+            messageTextBox.Clear();
             messageTextBox.Focus();
         }
 
@@ -151,6 +152,9 @@ namespace prog2200_assign1
             }
 
             bool isConnected = e.Status == ConnectionStatus.Connected;
+
+            // Update the status bar
+            connectionStatusLabel.Text = e.Reason;
 
             // Tell the user when the server ends the connection (but not when they disconnected themselves).
             if (_wasConnected && e.Status == ConnectionStatus.Disconnected && !_isUserDisconnecting)
