@@ -1,32 +1,29 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using prog2200_assign1_library;
 
 namespace prog2200_assign1
 {
     /// <summary>
-    /// The Network Game window. All chat networking lives in <see cref="ChatClient"/>
-    /// (prog2200_assign1_library); this form only shows what the library reports.
+    /// The Network Game window. All chat networking lives in prog2200_assign1_library
+    /// (<see cref="ChatClient"/> and <see cref="ChatServerLauncher"/>); this form only shows what they report.
     /// </summary>
     public partial class MainForm : Form
     {
-        // Client and server run on the same machine (start the server with: ncat -l -p 1234 -t -v).
+        // Client and server run on the same machine.
         private const string ServerHost = "127.0.0.1";
         private const int ServerPort = 1234;
 
-        // Tags that show where each line in the conversation came from.
-        private const string SentTag = ">> ";
-        private const string ReceivedTag = "<< ";
-        private const string SystemTag = "*** ";
+        // Marks the lines this client sent; lines from the server are shown exactly as the server typed them.
+        private const string SentTag = ">>";
 
-        private static readonly Color TimeColor = Color.Gray;
-        private static readonly Color SentColor = Color.RoyalBlue;
-        private static readonly Color ReceivedColor = Color.ForestGreen;
-        private static readonly Color SystemColor = Color.DimGray;
-        private static readonly Color ErrorColor = Color.Firebrick;
+        private const string ErrorCaption = "Error";
 
         private readonly ChatClient _chatClient = new ChatClient();
+        private readonly ChatServerLauncher _serverLauncher = new ChatServerLauncher();
+
+        private bool _isConnecting;
+        private bool _isUserDisconnecting;
         private bool _wasConnected;
 
         public MainForm()
@@ -36,26 +33,21 @@ namespace prog2200_assign1
             _chatClient.MessageReceived += new ChatMessageEventHandler(ChatClient_MessageReceived);
             _chatClient.MessageSent += new ChatMessageEventHandler(ChatClient_MessageSent);
             _chatClient.ConnectionChanged += new ConnectionChangedEventHandler(ChatClient_ConnectionChanged);
-            _chatClient.ErrorOccurred += new ChatErrorEventHandler(ChatClient_ErrorOccurred);
-
-            ShowConnectionStatus(ConnectionStatus.Disconnected, "Not connected");
+            _chatClient.ErrorOccurred += new ChatErrorEventHandler(Chat_ErrorOccurred);
+            _serverLauncher.ErrorOccurred += new ChatErrorEventHandler(Chat_ErrorOccurred);
         }
 
         /// <summary>
         /// Stops listening to the chat client and closes the connection before the window goes away.
+        /// The server window is left running, like a real server.
         /// </summary>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-#if DEBUG
-            // TEMPORARY DIAGNOSTIC: shows what closed the window. Remove once the early-exit problem is found.
-            MessageBox.Show("Closing because: " + e.CloseReason + Environment.NewLine + Environment.NewLine
-                + Environment.StackTrace, "DEBUG - window closing");
-#endif
-
             _chatClient.MessageReceived -= ChatClient_MessageReceived;
             _chatClient.MessageSent -= ChatClient_MessageSent;
             _chatClient.ConnectionChanged -= ChatClient_ConnectionChanged;
-            _chatClient.ErrorOccurred -= ChatClient_ErrorOccurred;
+            _chatClient.ErrorOccurred -= Chat_ErrorOccurred;
+            _serverLauncher.ErrorOccurred -= Chat_ErrorOccurred;
 
             _chatClient.Dispose();
 
@@ -66,13 +58,40 @@ namespace prog2200_assign1
 
         private async void connectMenuItem_Click(object sender, EventArgs e)
         {
-            // The connection is made in the background; the window stays responsive while we wait.
-            await _chatClient.ConnectAsync(ServerHost, ServerPort);
+            if (_isConnecting || _chatClient.IsConnected)
+            {
+                return;
+            }
+
+            _isConnecting = true;
+
+            try
+            {
+                // Opens the server's command prompt window if no server is running yet, then connects.
+                // Both steps run in the background; the window stays responsive while we wait.
+                if (await _serverLauncher.EnsureServerRunningAsync(ServerPort))
+                {
+                    await _chatClient.ConnectAsync(ServerHost, ServerPort);
+                }
+            }
+            finally
+            {
+                _isConnecting = false;
+            }
         }
 
         private void disconnectMenuItem_Click(object sender, EventArgs e)
         {
-            _chatClient.Disconnect();
+            _isUserDisconnecting = true;
+
+            try
+            {
+                _chatClient.Disconnect();
+            }
+            finally
+            {
+                _isUserDisconnecting = false;
+            }
         }
 
         private void exitMenuItem_Click(object sender, EventArgs e)
@@ -88,17 +107,15 @@ namespace prog2200_assign1
             }
 
             // Send() only queues the message for the send thread, so this returns straight away.
-            if (_chatClient.Send(messageTextBox.Text))
-            {
-                messageTextBox.Clear();
-            }
+            // The message stays in the box, so it can be edited or sent again.
+            _chatClient.Send(messageTextBox.Text);
 
             messageTextBox.Focus();
         }
 
         #endregion
 
-        #region Chat client event handlers
+        #region Chat event handlers
 
         // These handlers are first called on the chat client's background threads. Each one checks
         // InvokeRequired and, if needed, calls itself again on the UI thread before touching controls.
@@ -111,7 +128,7 @@ namespace prog2200_assign1
                 return;
             }
 
-            AddConversationLine(e.Time, ReceivedTag + e.Text, ReceivedColor);
+            AddConversationLine(e.Text);
         }
 
         private void ChatClient_MessageSent(object sender, ChatMessageEventArgs e)
@@ -122,7 +139,7 @@ namespace prog2200_assign1
                 return;
             }
 
-            AddConversationLine(e.Time, SentTag + e.Text, SentColor);
+            AddConversationLine(SentTag + e.Text);
         }
 
         private void ChatClient_ConnectionChanged(object sender, ConnectionChangedEventArgs e)
@@ -133,18 +150,34 @@ namespace prog2200_assign1
                 return;
             }
 
-            ShowConnectionStatus(e.Status, e.Reason);
+            bool isConnected = e.Status == ConnectionStatus.Connected;
+
+            // Tell the user when the server ends the connection (but not when they disconnected themselves).
+            if (_wasConnected && e.Status == ConnectionStatus.Disconnected && !_isUserDisconnecting)
+            {
+                MessageBox.Show(this, e.Reason + ".", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (isConnected)
+            {
+                messageTextBox.Focus();
+            }
+
+            if (e.Status != ConnectionStatus.Connecting)
+            {
+                _wasConnected = isConnected;
+            }
         }
 
-        private void ChatClient_ErrorOccurred(object sender, ChatErrorEventArgs e)
+        private void Chat_ErrorOccurred(object sender, ChatErrorEventArgs e)
         {
             if (InvokeRequired)
             {
-                InvokeOnUiThread(new ChatErrorEventHandler(ChatClient_ErrorOccurred), sender, e);
+                InvokeOnUiThread(new ChatErrorEventHandler(Chat_ErrorOccurred), sender, e);
                 return;
             }
 
-            AddConversationLine(DateTime.Now, SystemTag + e.Message, ErrorColor);
+            MessageBox.Show(this, e.Message, ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         #endregion
@@ -173,49 +206,11 @@ namespace prog2200_assign1
         }
 
         /// <summary>
-        /// Adds a time-stamped, coloured line to the conversation and scrolls to it.
+        /// Adds a line to the conversation and scrolls to it.
         /// </summary>
-        private void AddConversationLine(DateTime time, string text, Color color)
+        private void AddConversationLine(string text)
         {
-            AppendColoredText("[" + time.ToString("HH:mm:ss") + "] ", TimeColor);
-            AppendColoredText(text + Environment.NewLine, color);
-
-            conversationBox.ScrollToCaret();
-        }
-
-        private void AppendColoredText(string text, Color color)
-        {
-            conversationBox.SelectionStart = conversationBox.TextLength;
-            conversationBox.SelectionLength = 0;
-            conversationBox.SelectionColor = color;
-            conversationBox.AppendText(text);
-        }
-
-        /// <summary>
-        /// Enables only the controls that make sense for the connection status.
-        /// </summary>
-        private void ShowConnectionStatus(ConnectionStatus status, string reason)
-        {
-            bool isConnected = status == ConnectionStatus.Connected;
-
-            connectMenuItem.Enabled = status == ConnectionStatus.Disconnected;
-            disconnectMenuItem.Enabled = isConnected;
-            messageTextBox.Enabled = isConnected;
-            sendButton.Enabled = isConnected;
-            connectionStatusLabel.Text = reason;
-
-            // Note connects and disconnects in the conversation (failed attempts are shown as errors).
-            if (isConnected || (status == ConnectionStatus.Disconnected && _wasConnected))
-            {
-                AddConversationLine(DateTime.Now, SystemTag + reason, SystemColor);
-            }
-
-            if (isConnected)
-            {
-                messageTextBox.Focus();
-            }
-
-            _wasConnected = isConnected;
+            conversationTextBox.AppendText(text + Environment.NewLine);
         }
 
         #endregion

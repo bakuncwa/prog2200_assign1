@@ -21,12 +21,6 @@ namespace prog2200_assign1
                 (sender, e) => ShowUnexpectedError(e.ExceptionObject as Exception);
 
             Application.Run(new MainForm());
-
-#if DEBUG
-            // TEMPORARY DIAGNOSTIC: confirms the main window finished normally. Remove once the
-            // early-exit problem is found.
-            MessageBox.Show("Application.Run returned - the main window has closed.", "DEBUG - program ending");
-#endif
         }
 
         private static void ShowUnexpectedError(Exception exception)

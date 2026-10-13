@@ -13,9 +13,15 @@ namespace prog2200_assign1
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                // Closes the connection even if the window is destroyed without closing normally.
+                _chatClient.Dispose();
+
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
@@ -38,21 +44,18 @@ namespace prog2200_assign1
             this.gameLabel = new System.Windows.Forms.Label();
             this.chatPanel = new System.Windows.Forms.Panel();
             this.conversationGroupBox = new System.Windows.Forms.GroupBox();
-            this.conversationBox = new System.Windows.Forms.RichTextBox();
+            this.conversationTextBox = new System.Windows.Forms.TextBox();
             this.spacerPanel = new System.Windows.Forms.Panel();
             this.messageGroupBox = new System.Windows.Forms.GroupBox();
             this.messageLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.messageTextBox = new System.Windows.Forms.TextBox();
             this.sendButton = new System.Windows.Forms.Button();
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.connectionStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenuStrip.SuspendLayout();
             this.gamePanel.SuspendLayout();
             this.chatPanel.SuspendLayout();
             this.conversationGroupBox.SuspendLayout();
             this.messageGroupBox.SuspendLayout();
             this.messageLayoutPanel.SuspendLayout();
-            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             //
             // mainMenuStrip
@@ -62,7 +65,7 @@ namespace prog2200_assign1
             this.networkMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
-            this.mainMenuStrip.Size = new System.Drawing.Size(624, 24);
+            this.mainMenuStrip.Size = new System.Drawing.Size(640, 24);
             this.mainMenuStrip.TabIndex = 0;
             //
             // gameMenuItem
@@ -70,7 +73,7 @@ namespace prog2200_assign1
             this.gameMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitMenuItem});
             this.gameMenuItem.Name = "gameMenuItem";
-            this.gameMenuItem.Size = new System.Drawing.Size(50, 20);
+            this.gameMenuItem.Size = new System.Drawing.Size(46, 20);
             this.gameMenuItem.Text = "&Game";
             //
             // exitMenuItem
@@ -86,7 +89,7 @@ namespace prog2200_assign1
             this.connectMenuItem,
             this.disconnectMenuItem});
             this.networkMenuItem.Name = "networkMenuItem";
-            this.networkMenuItem.Size = new System.Drawing.Size(64, 20);
+            this.networkMenuItem.Size = new System.Drawing.Size(59, 20);
             this.networkMenuItem.Text = "&Network";
             //
             // connectMenuItem
@@ -110,17 +113,17 @@ namespace prog2200_assign1
             this.gamePanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.gamePanel.Location = new System.Drawing.Point(0, 24);
             this.gamePanel.Name = "gamePanel";
-            this.gamePanel.Size = new System.Drawing.Size(624, 300);
+            this.gamePanel.Size = new System.Drawing.Size(640, 260);
             this.gamePanel.TabIndex = 1;
             //
             // gameLabel
             //
             this.gameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gameLabel.Font = new System.Drawing.Font("Arial", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gameLabel.Font = new System.Drawing.Font("Arial", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gameLabel.ForeColor = System.Drawing.Color.White;
             this.gameLabel.Location = new System.Drawing.Point(0, 0);
             this.gameLabel.Name = "gameLabel";
-            this.gameLabel.Size = new System.Drawing.Size(624, 300);
+            this.gameLabel.Size = new System.Drawing.Size(640, 260);
             this.gameLabel.TabIndex = 0;
             this.gameLabel.Text = "Game Goes Here";
             this.gameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -131,56 +134,53 @@ namespace prog2200_assign1
             this.chatPanel.Controls.Add(this.spacerPanel);
             this.chatPanel.Controls.Add(this.messageGroupBox);
             this.chatPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chatPanel.Location = new System.Drawing.Point(0, 324);
+            this.chatPanel.Location = new System.Drawing.Point(0, 284);
             this.chatPanel.Name = "chatPanel";
-            this.chatPanel.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
-            this.chatPanel.Size = new System.Drawing.Size(624, 315);
+            this.chatPanel.Padding = new System.Windows.Forms.Padding(12, 4, 12, 12);
+            this.chatPanel.Size = new System.Drawing.Size(640, 276);
             this.chatPanel.TabIndex = 2;
             //
             // conversationGroupBox
             //
-            this.conversationGroupBox.Controls.Add(this.conversationBox);
+            this.conversationGroupBox.Controls.Add(this.conversationTextBox);
             this.conversationGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.conversationGroupBox.Location = new System.Drawing.Point(12, 82);
+            this.conversationGroupBox.Location = new System.Drawing.Point(12, 62);
             this.conversationGroupBox.Name = "conversationGroupBox";
-            this.conversationGroupBox.Padding = new System.Windows.Forms.Padding(10, 6, 10, 10);
-            this.conversationGroupBox.Size = new System.Drawing.Size(600, 223);
+            this.conversationGroupBox.Padding = new System.Windows.Forms.Padding(6, 3, 6, 6);
+            this.conversationGroupBox.Size = new System.Drawing.Size(616, 202);
             this.conversationGroupBox.TabIndex = 1;
             this.conversationGroupBox.TabStop = false;
             this.conversationGroupBox.Text = "Conversation";
             //
-            // conversationBox
+            // conversationTextBox
             //
-            this.conversationBox.BackColor = System.Drawing.SystemColors.Window;
-            this.conversationBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.conversationBox.DetectUrls = false;
-            this.conversationBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.conversationBox.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.conversationBox.Location = new System.Drawing.Point(10, 22);
-            this.conversationBox.Name = "conversationBox";
-            this.conversationBox.ReadOnly = true;
-            this.conversationBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.conversationBox.Size = new System.Drawing.Size(580, 191);
-            this.conversationBox.TabIndex = 0;
-            this.conversationBox.TabStop = false;
-            this.conversationBox.Text = "";
+            this.conversationTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.conversationTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.conversationTextBox.Location = new System.Drawing.Point(6, 16);
+            this.conversationTextBox.Multiline = true;
+            this.conversationTextBox.Name = "conversationTextBox";
+            this.conversationTextBox.ReadOnly = true;
+            this.conversationTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.conversationTextBox.Size = new System.Drawing.Size(604, 180);
+            this.conversationTextBox.TabIndex = 0;
+            this.conversationTextBox.TabStop = false;
             //
             // spacerPanel
             //
             this.spacerPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.spacerPanel.Location = new System.Drawing.Point(12, 72);
+            this.spacerPanel.Location = new System.Drawing.Point(12, 54);
             this.spacerPanel.Name = "spacerPanel";
-            this.spacerPanel.Size = new System.Drawing.Size(600, 10);
+            this.spacerPanel.Size = new System.Drawing.Size(616, 8);
             this.spacerPanel.TabIndex = 2;
             //
             // messageGroupBox
             //
             this.messageGroupBox.Controls.Add(this.messageLayoutPanel);
             this.messageGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.messageGroupBox.Location = new System.Drawing.Point(12, 10);
+            this.messageGroupBox.Location = new System.Drawing.Point(12, 4);
             this.messageGroupBox.Name = "messageGroupBox";
-            this.messageGroupBox.Padding = new System.Windows.Forms.Padding(10, 6, 10, 8);
-            this.messageGroupBox.Size = new System.Drawing.Size(600, 62);
+            this.messageGroupBox.Padding = new System.Windows.Forms.Padding(6, 3, 6, 4);
+            this.messageGroupBox.Size = new System.Drawing.Size(616, 50);
             this.messageGroupBox.TabIndex = 0;
             this.messageGroupBox.TabStop = false;
             this.messageGroupBox.Text = "Type your messages here.";
@@ -193,62 +193,45 @@ namespace prog2200_assign1
             this.messageLayoutPanel.Controls.Add(this.messageTextBox, 0, 0);
             this.messageLayoutPanel.Controls.Add(this.sendButton, 1, 0);
             this.messageLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.messageLayoutPanel.Location = new System.Drawing.Point(10, 22);
+            this.messageLayoutPanel.Location = new System.Drawing.Point(6, 16);
             this.messageLayoutPanel.Name = "messageLayoutPanel";
             this.messageLayoutPanel.RowCount = 1;
             this.messageLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.messageLayoutPanel.Size = new System.Drawing.Size(580, 32);
+            this.messageLayoutPanel.Size = new System.Drawing.Size(604, 30);
             this.messageLayoutPanel.TabIndex = 0;
             //
             // messageTextBox
             //
             this.messageTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.messageTextBox.Location = new System.Drawing.Point(3, 4);
+            this.messageTextBox.Location = new System.Drawing.Point(3, 5);
             this.messageTextBox.MaxLength = 1000;
             this.messageTextBox.Name = "messageTextBox";
-            this.messageTextBox.Size = new System.Drawing.Size(478, 23);
+            this.messageTextBox.Size = new System.Drawing.Size(515, 20);
             this.messageTextBox.TabIndex = 0;
             //
             // sendButton
             //
             this.sendButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.sendButton.Location = new System.Drawing.Point(487, 3);
-            this.sendButton.Margin = new System.Windows.Forms.Padding(8, 3, 0, 3);
+            this.sendButton.Location = new System.Drawing.Point(526, 3);
+            this.sendButton.Margin = new System.Windows.Forms.Padding(5, 3, 3, 3);
             this.sendButton.Name = "sendButton";
-            this.sendButton.Size = new System.Drawing.Size(90, 26);
+            this.sendButton.Size = new System.Drawing.Size(75, 23);
             this.sendButton.TabIndex = 1;
-            this.sendButton.Text = "&Send";
+            this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
             this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
-            //
-            // statusStrip
-            //
-            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.connectionStatusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 639);
-            this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(624, 22);
-            this.statusStrip.TabIndex = 3;
-            //
-            // connectionStatusLabel
-            //
-            this.connectionStatusLabel.Name = "connectionStatusLabel";
-            this.connectionStatusLabel.Size = new System.Drawing.Size(85, 17);
-            this.connectionStatusLabel.Text = "Not connected";
             //
             // MainForm
             //
             this.AcceptButton = this.sendButton;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(624, 661);
+            this.ClientSize = new System.Drawing.Size(640, 560);
             this.Controls.Add(this.chatPanel);
             this.Controls.Add(this.gamePanel);
-            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mainMenuStrip);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MainMenuStrip = this.mainMenuStrip;
-            this.MinimumSize = new System.Drawing.Size(480, 560);
+            this.MinimumSize = new System.Drawing.Size(480, 480);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Network Game";
@@ -257,11 +240,10 @@ namespace prog2200_assign1
             this.gamePanel.ResumeLayout(false);
             this.chatPanel.ResumeLayout(false);
             this.conversationGroupBox.ResumeLayout(false);
+            this.conversationGroupBox.PerformLayout();
             this.messageGroupBox.ResumeLayout(false);
             this.messageLayoutPanel.ResumeLayout(false);
             this.messageLayoutPanel.PerformLayout();
-            this.statusStrip.ResumeLayout(false);
-            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -279,13 +261,11 @@ namespace prog2200_assign1
         private System.Windows.Forms.Label gameLabel;
         private System.Windows.Forms.Panel chatPanel;
         private System.Windows.Forms.GroupBox conversationGroupBox;
-        private System.Windows.Forms.RichTextBox conversationBox;
+        private System.Windows.Forms.TextBox conversationTextBox;
         private System.Windows.Forms.Panel spacerPanel;
         private System.Windows.Forms.GroupBox messageGroupBox;
         private System.Windows.Forms.TableLayoutPanel messageLayoutPanel;
         private System.Windows.Forms.TextBox messageTextBox;
         private System.Windows.Forms.Button sendButton;
-        private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.ToolStripStatusLabel connectionStatusLabel;
     }
 }

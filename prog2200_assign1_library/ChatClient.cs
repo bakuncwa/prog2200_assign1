@@ -27,7 +27,7 @@ namespace prog2200_assign1_library
         private const string LineEnding = "\r\n";
 
         // UTF-8 is identical to ASCII for plain English text, but also keeps accented characters intact.
-        private static readonly Encoding Utf8 = new UTF8Encoding(false);
+        private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
 
         // Guards the three fields below.
         private readonly object _sync = new object();
@@ -42,10 +42,13 @@ namespace prog2200_assign1_library
         /// <summary>Raised on the send thread once a message has been written to the server.</summary>
         public event ChatMessageEventHandler MessageSent;
 
-        /// <summary>Raised (on any thread) when the client connects, disconnects or starts connecting.</summary>
+        /// <summary>
+        /// Raised (on any thread) when the client connects, disconnects or starts connecting.
+        /// A lost connection is reported here, with the reason, rather than through <see cref="ErrorOccurred"/>.
+        /// </summary>
         public event ConnectionChangedEventHandler ConnectionChanged;
 
-        /// <summary>Raised (on any thread) when a networking error occurs.</summary>
+        /// <summary>Raised (on any thread) when connecting fails or a message is sent while not connected.</summary>
         public event ChatErrorEventHandler ErrorOccurred;
 
         /// <summary>True while connected to a server. Safe to read from any thread.</summary>
@@ -212,7 +215,8 @@ namespace prog2200_assign1_library
                 if (await Task.WhenAny(connect, Task.Delay(ConnectTimeout)).ConfigureAwait(false) != connect)
                 {
                     // Observe the abandoned attempt so its exception is not reported as unhandled.
-                    _ = connect.ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                    _ = connect.ContinueWith(t => t.Exception, CancellationToken.None,
+                        TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
                     throw new TimeoutException();
                 }
 
@@ -291,8 +295,7 @@ namespace prog2200_assign1_library
                 // Closing the socket in Disconnect() also ends a blocked Receive - nothing to report then.
                 if (!state.IsClosed)
                 {
-                    OnErrorOccurred("The connection to the server was lost.", ex);
-                    Close(state, "Connection lost");
+                    Close(state, "The connection to the server was lost (" + ex.Message + ")");
                 }
             }
         }
@@ -317,8 +320,7 @@ namespace prog2200_assign1_library
             {
                 if (!state.IsClosed)
                 {
-                    OnErrorOccurred("A message could not be sent - the connection was lost.", ex);
-                    Close(state, "Connection lost");
+                    Close(state, "The connection to the server was lost (" + ex.Message + ")");
                 }
             }
         }
