@@ -1,11 +1,11 @@
 ﻿# PROG2200 Assignment 1 - Chat Client
 
 Windows Forms TCP chat with async/await and background threads. Networking encapsulated in class library.
-Server: **ncat** (Nmap) or PowerShell test server.
+Server: [**ncat**](https://nmap.org/download.html) ([Nmap](https://nmap.org/download.html)) or PowerShell test server.
 
 ## Quick Start
 
-1. **Install ncat** (included in Nmap): 
+1. **Install [ncat](https://nmap.org/download.html)** (included in [Nmap](https://nmap.org/download.html)): 
    ```powershell
    winget install --id Insecure.Nmap -e
    ```
@@ -65,7 +65,7 @@ private const int ServerPort = 1234;
 
 ## Quick Start
 
-1. Install Nmap: winget install --id Insecure.Nmap -e
+1. Install [Nmap](https://nmap.org/download.html) (includes ncat): winget install --id Insecure.Nmap -e
 2. Clone: git clone https://github.com/bakuncwa/prog2200_assign1.git
 3. Build: Open prog2200_assign1.sln in Visual Studio, press Ctrl+Shift+B
 4. Start server: & 'C:\Program Files (x86)\Nmap\ncat.exe' -l -p 1234 -t -v

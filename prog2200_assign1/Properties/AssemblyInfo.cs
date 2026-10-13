@@ -8,10 +8,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("prog2200_assign1")]
 [assembly: AssemblyDescription("Network Game - chat client window")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NSCC")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("prog2200_assign1")]
-[assembly: AssemblyCopyright("Copyright © NSCC 2026")]
-[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
