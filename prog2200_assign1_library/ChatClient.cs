@@ -20,14 +20,17 @@ namespace prog2200_assign1_library
     /// </summary>
     public sealed class ChatClient : IDisposable
     {
-        /// <summary>How long to wait for the server to accept the connection.</summary>
-        private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(5);
+        /// <summary>
+        /// Default text encoding: UTF-8 is identical to ASCII for plain English text, but also keeps
+        /// accented characters intact.
+        /// </summary>
+        public static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 
-        // ncat (and most line based servers) treat CR LF as "end of message".
-        private const string LineEnding = "\r\n";
+        /// <summary>Default line ending: ncat (and most line based servers) treat CR LF as "end of message".</summary>
+        public const string DefaultLineEnding = "\r\n";
 
-        // UTF-8 is identical to ASCII for plain English text, but also keeps accented characters intact.
-        private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
+        /// <summary>Default time to wait for the server to accept the connection.</summary>
+        public static readonly TimeSpan DefaultConnectTimeout = TimeSpan.FromSeconds(5);
 
         // Guards the three fields below.
         private readonly object _sync = new object();
@@ -50,6 +53,55 @@ namespace prog2200_assign1_library
 
         /// <summary>Raised (on any thread) when connecting fails or a message is sent while not connected.</summary>
         public event ChatErrorEventHandler ErrorOccurred;
+
+        /// <summary>
+        /// Creates a client that uses UTF-8 text, "\r\n" line endings and a 5-second connect timeout -
+        /// the settings ncat and most line based chat servers expect.
+        /// </summary>
+        public ChatClient()
+            : this(DefaultEncoding, DefaultLineEnding, DefaultConnectTimeout)
+        {
+        }
+
+        /// <summary>
+        /// Creates a client for a server with different conventions.
+        /// </summary>
+        /// <param name="encoding">How text is turned into bytes and back, e.g. UTF-8 or ASCII.</param>
+        /// <param name="lineEnding">
+        /// Added to the end of every sent message, e.g. "\r\n" or "\n". Incoming lines may end in
+        /// either "\n" or "\r\n" regardless of this setting.
+        /// </param>
+        /// <param name="connectTimeout">How long <see cref="ConnectAsync"/> waits for the server.</param>
+        public ChatClient(Encoding encoding, string lineEnding, TimeSpan connectTimeout)
+        {
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
+
+            if (lineEnding == null)
+            {
+                throw new ArgumentNullException(nameof(lineEnding));
+            }
+
+            if (connectTimeout <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(connectTimeout), "The timeout must be positive.");
+            }
+
+            Encoding = encoding;
+            LineEnding = lineEnding;
+            ConnectTimeout = connectTimeout;
+        }
+
+        /// <summary>How text is turned into bytes for sending, and back into text when received.</summary>
+        public Encoding Encoding { get; }
+
+        /// <summary>The line ending added to every sent message.</summary>
+        public string LineEnding { get; }
+
+        /// <summary>How long <see cref="ConnectAsync"/> waits for the server to accept the connection.</summary>
+        public TimeSpan ConnectTimeout { get; }
 
         /// <summary>True while connected to a server. Safe to read from any thread.</summary>
         public bool IsConnected
@@ -92,7 +144,7 @@ namespace prog2200_assign1_library
 
             try
             {
-                socket = await OpenSocketAsync(host, port).ConfigureAwait(false);
+                socket = await OpenSocketAsync(host, port, ConnectTimeout).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is SocketException || ex is TimeoutException)
             {
@@ -195,9 +247,9 @@ namespace prog2200_assign1_library
 
         /// <summary>
         /// Looks up the host's IP address and connects a socket to it, giving up after
-        /// <see cref="ConnectTimeout"/>.
+        /// <paramref name="timeout"/>.
         /// </summary>
-        private static async Task<Socket> OpenSocketAsync(string host, int port)
+        private static async Task<Socket> OpenSocketAsync(string host, int port, TimeSpan timeout)
         {
             IPAddress[] addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
 
@@ -212,7 +264,7 @@ namespace prog2200_assign1_library
                 Task connect = Task.Factory.FromAsync<IPAddress, int>(
                     socket.BeginConnect, socket.EndConnect, address, port, null);
 
-                if (await Task.WhenAny(connect, Task.Delay(ConnectTimeout)).ConfigureAwait(false) != connect)
+                if (await Task.WhenAny(connect, Task.Delay(timeout)).ConfigureAwait(false) != connect)
                 {
                     // Observe the abandoned attempt so its exception is not reported as unhandled.
                     _ = connect.ContinueWith(t => t.Exception, CancellationToken.None,
@@ -238,8 +290,8 @@ namespace prog2200_assign1_library
         private void ReceiveLoop(StateObj state)
         {
             // A Decoder remembers partial multi-byte characters that are split across two reads.
-            Decoder decoder = Utf8.GetDecoder();
-            char[] chars = new char[Utf8.GetMaxCharCount(StateObj.BufferSize)];
+            Decoder decoder = Encoding.GetDecoder();
+            char[] chars = new char[Encoding.GetMaxCharCount(StateObj.BufferSize)];
 
             // TCP may split one message across several reads (or join several into one),
             // so characters are collected here until a line ending arrives.
@@ -310,7 +362,7 @@ namespace prog2200_assign1_library
                 // Sleeps until Send() queues a message; ends when Close() completes the queue.
                 foreach (string message in state.Outbox.GetConsumingEnumerable())
                 {
-                    byte[] data = Utf8.GetBytes(message + LineEnding);
+                    byte[] data = Encoding.GetBytes(message + LineEnding);
                     state.Socket.Send(data);
 
                     OnMessageSent(message);

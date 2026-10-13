@@ -1,4 +1,6 @@
 using System;
+using System.Configuration;
+using System.Globalization;
 using System.Windows.Forms;
 using prog2200_assign1_library;
 
@@ -10,16 +12,24 @@ namespace prog2200_assign1
     /// </summary>
     public partial class MainForm : Form
     {
-        // Client and server run on the same machine.
-        private const string ServerHost = "127.0.0.1";
-        private const int ServerPort = 1234;
+        // Used when App.config does not set a value (client and server on the same machine).
+        private const string DefaultServerHost = "127.0.0.1";
+        private const int DefaultServerPort = 1234;
 
         // Marks the lines this client sent; lines from the server are shown exactly as the server typed them.
         private const string SentTag = ">>";
 
         private const string ErrorCaption = "Error";
 
-        private readonly ChatClient _chatClient = new ChatClient();
+        // Read from the appSettings section of App.config.
+        private readonly string _serverHost = ReadSetting("ServerHost", DefaultServerHost);
+        private readonly int _serverPort = ReadSetting("ServerPort", DefaultServerPort);
+
+        private readonly ChatClient _chatClient = new ChatClient(
+            ChatClient.DefaultEncoding,
+            ChatClient.DefaultLineEnding,
+            TimeSpan.FromSeconds(ReadSetting("ConnectTimeoutSeconds", (int)ChatClient.DefaultConnectTimeout.TotalSeconds)));
+
         private readonly ChatServerLauncher _serverLauncher = new ChatServerLauncher();
 
         private bool _isConnecting;
@@ -69,9 +79,9 @@ namespace prog2200_assign1
             {
                 // Opens the server's command prompt window if no server is running yet, then connects.
                 // Both steps run in the background; the window stays responsive while we wait.
-                if (await _serverLauncher.EnsureServerRunningAsync(ServerPort))
+                if (await _serverLauncher.EnsureServerRunningAsync(_serverPort))
                 {
-                    await _chatClient.ConnectAsync(ServerHost, ServerPort);
+                    await _chatClient.ConnectAsync(_serverHost, _serverPort);
                 }
             }
             finally
@@ -207,6 +217,30 @@ namespace prog2200_assign1
             {
                 // The window was closed while a message was arriving - nothing left to update.
             }
+        }
+
+        /// <summary>
+        /// Reads a text setting from App.config, or returns <paramref name="defaultValue"/> if it is missing.
+        /// </summary>
+        private static string ReadSetting(string key, string defaultValue)
+        {
+            string value = ConfigurationManager.AppSettings[key];
+
+            return string.IsNullOrWhiteSpace(value) ? defaultValue : value.Trim();
+        }
+
+        /// <summary>
+        /// Reads a positive whole-number setting from App.config, or returns <paramref name="defaultValue"/>
+        /// if it is missing or not a valid positive number.
+        /// </summary>
+        private static int ReadSetting(string key, int defaultValue)
+        {
+            int value;
+
+            return int.TryParse(ConfigurationManager.AppSettings[key], NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out value) && value > 0
+                ? value
+                : defaultValue;
         }
 
         /// <summary>

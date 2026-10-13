@@ -57,10 +57,21 @@ Server: [**ncat**](https://nmap.org/download.html) ([Nmap](https://nmap.org/down
 
 ## Config
 
-Edit `prog2200_assign1/MainForm.cs` to change host/port:
+Server settings live in `prog2200_assign1/App.config`. After building they are copied to
+`bin\Debug\prog2200_assign1.exe.config`, so they can be changed there without recompiling:
+```xml
+<appSettings>
+    <add key="ServerHost" value="127.0.0.1" />
+    <add key="ServerPort" value="1234" />
+    <add key="ConnectTimeoutSeconds" value="5" />
+</appSettings>
+```
+A missing or invalid value falls back to the default shown above.
+
+The library's `ChatClient` can also be created for servers with different conventions:
 ```csharp
-private const string ServerHost = "127.0.0.1";
-private const int ServerPort = 1234;
+var client = new ChatClient();                                                // UTF-8, "\r\n", 5 s
+var custom = new ChatClient(Encoding.ASCII, "\n", TimeSpan.FromSeconds(10));  // ASCII, "\n", 10 s
 ```
 
 ## Quick Start
